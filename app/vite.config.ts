@@ -61,9 +61,12 @@ function autoBackend(): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   base: '/',
-  plugins: [react(), autoBackend()],
+  plugins: [
+    react(),
+    ...(command === 'serve' ? [autoBackend()] : [])
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -114,4 +117,4 @@ export default defineConfig({
       }
     }
   }
-});
+}));
