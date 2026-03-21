@@ -2,7 +2,6 @@ import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import type { Plugin } from "vite"
-import { inspectAttr } from 'kimi-plugin-inspect-react'
 import { spawn, ChildProcess } from "child_process"
 import * as fs from "fs"
 
@@ -63,8 +62,8 @@ function autoBackend(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
-  plugins: [inspectAttr(), react(), autoBackend()],
+  base: '/',
+  plugins: [react(), autoBackend()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
