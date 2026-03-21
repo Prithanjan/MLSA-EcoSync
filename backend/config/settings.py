@@ -8,7 +8,7 @@ from typing import Optional
 
 @dataclass
 class MQTTConfig:
-    broker_host: str = 'broker.hivemq.com'
+    broker_host: str = 'broker.emqx.io'
     broker_port: int = 1883
     username: Optional[str] = None
     password: Optional[str] = None
