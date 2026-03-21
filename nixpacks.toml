@@ -1,0 +1,17 @@
+[providers]
+  node = {}
+  python = {}
+
+[phases.install]
+  cmds = [
+    "cd app && npm install",
+    "cd backend && pip install --break-system-packages -r requirements.txt"
+  ]
+
+[phases.build]
+  cmds = [
+    "cd app && npm run build"
+  ]
+
+[start]
+  cmd = "cd backend && python main.py"
