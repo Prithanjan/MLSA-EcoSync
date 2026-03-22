@@ -4,6 +4,11 @@ import {
   Zap, Sun, Activity, ArrowRight, Cpu, Globe,
   TrendingUp, ShieldCheck, ChevronDown, Wifi, Battery
 } from 'lucide-react';
+import {
+  LiveBlockchainFeed,
+  EnergyFlowDiagram,
+  P2PNetworkVisualization,
+} from '@/components/landing/TechVisualizations';
 
 /* ─────────────────────────────────────────────
    Animated Canvas Background
@@ -436,6 +441,29 @@ export default function LandingPage() {
             <StepRow num="4" isLeft={false} accentGrad="from-amber-500 to-orange-600" delay={300}
               title="You See It All in 3D"
               desc="The React + Three.js dashboard renders every building's live status as a glowing colour in the city grid — green for selling, amber for buying, red for critical." />
+          </div>
+        </div>
+      </section>
+
+      {/* ── LIVE TECH IN ACTION ── */}
+      <section id="live-tech" className="relative py-28 px-6" style={{ zIndex: 1 }}>
+        <Separator />
+        <div className="max-w-6xl mx-auto pt-16">
+          <SectionHeading
+            tag="Live Simulation"
+            title={<>See the Tech <em className="not-italic text-white">in Action</em></>}
+            sub="Watch real-time blockchain settlements, energy flows, and P2P trades — all animated live."
+          />
+
+          {/* Row 1: Blockchain Feed + Energy Flow */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-12">
+            <LiveBlockchainFeed />
+            <EnergyFlowDiagram />
+          </div>
+
+          {/* Row 2: Full-width P2P Network */}
+          <div className="mt-6">
+            <P2PNetworkVisualization />
           </div>
         </div>
       </section>

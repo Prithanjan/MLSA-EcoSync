@@ -258,16 +258,16 @@ class SmartBuilding:
         telemetry = {
             "building_id": self.building_id,
             "timestamp": datetime.now().isoformat(),
-            "load": round(self.current_load, 2),
-            "solar_generation": round(self.solar_generation, 2),
-            "battery_soc": round(self.battery_soc, 2),
-            "grid_frequency": round(self.grid_frequency, 2),
-            "is_selling": self.is_selling,
-            "is_buying": self.is_buying,
-            "is_critical": self.is_critical,
-            "is_priority": self.is_priority,
+            "load": float(round(self.current_load, 2)),
+            "solar_generation": float(round(self.solar_generation, 2)),
+            "battery_soc": float(round(self.battery_soc, 2)),
+            "grid_frequency": float(round(self.grid_frequency, 2)),
+            "is_selling": bool(self.is_selling),
+            "is_buying": bool(self.is_buying),
+            "is_critical": bool(self.is_critical),
+            "is_priority": bool(self.is_priority),
             "building_type": self.building_type,
-            "net_energy": round(self.solar_generation - self.current_load, 2)
+            "net_energy": float(round(self.solar_generation - self.current_load, 2))
         }
         
         topic = f"ecosync/building/{self.building_id}/telemetry"
@@ -354,18 +354,18 @@ class SmartBuilding:
         return {
             "building_id": self.building_id,
             "building_type": self.building_type,
-            "is_priority": self.is_priority,
-            "current_load": round(self.current_load, 2),
-            "solar_generation": round(self.solar_generation, 2),
-            "battery_soc": round(self.battery_soc, 2),
-            "grid_frequency": round(self.grid_frequency, 2),
-            "is_selling": self.is_selling,
-            "is_buying": self.is_buying,
-            "is_critical": self.is_critical,
-            "cloud_cover": self.cloud_cover_active,
-            "grid_failure": self.grid_failure,
-            "total_generated": round(self.total_energy_generated, 2),
-            "total_consumed": round(self.total_energy_consumed, 2),
+            "is_priority": bool(self.is_priority),
+            "current_load": float(round(self.current_load, 2)),
+            "solar_generation": float(round(self.solar_generation, 2)),
+            "battery_soc": float(round(self.battery_soc, 2)),
+            "grid_frequency": float(round(self.grid_frequency, 2)),
+            "is_selling": bool(self.is_selling),
+            "is_buying": bool(self.is_buying),
+            "is_critical": bool(self.is_critical),
+            "cloud_cover": bool(self.cloud_cover_active),
+            "grid_failure": bool(self.grid_failure),
+            "total_generated": float(round(self.total_energy_generated, 2)),
+            "total_consumed": float(round(self.total_energy_consumed, 2)),
             "trades_completed": self.trades_completed
         }
     

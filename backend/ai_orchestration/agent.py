@@ -146,6 +146,35 @@ class BuildingAgent:
         if self.is_buying and offer.get("type") == "sell_offer":
             self._evaluate_offer(offer)
     
+    def _evaluate_offer(self, offer: Dict):
+        """Evaluate and potentially accept a sell offer from another agent"""
+        price = offer.get("price", 999)
+        amount = offer.get("amount", 0)
+        seller_id = offer.get("from_agent")
+        
+        # Max acceptable price depends on urgency
+        max_acceptable = 0.22 if self.battery_soc > 20 else 0.30
+        
+        if price <= max_acceptable:
+            self._log_thought(
+                f"✅ Accepting offer from Building {seller_id}: {amount:.1f}kWh at ${price:.3f}/kWh",
+                "success"
+            )
+            # Execute the trade
+            trade_details = {
+                "agreed": True,
+                "final_price": price,
+                "final_amount": min(amount, abs(self.net_energy)),
+                "seller_id": seller_id,
+                "buyer_id": self.building_id
+            }
+            self.execute_trade(trade_details)
+        else:
+            self._log_thought(
+                f"❌ Rejecting offer from Building {seller_id}: Price ${price:.3f} too high (max ${max_acceptable:.3f})",
+                "warning"
+            )
+    
     def _log_thought(self, message: str, thought_type: str = "info"):
         """Log agent's thought process for visualization"""
         log_entry = {

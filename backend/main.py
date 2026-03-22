@@ -238,7 +238,7 @@ def main():
     parser.add_argument("--no-ai", action="store_true", help="Disable AI orchestration")
     parser.add_argument("--no-api", action="store_true", help="Disable FastAPI server")
     parser.add_argument("--buildings", type=int, default=50, help="Number of buildings to simulate")
-    parser.add_argument("--mqtt-host", default=os.getenv("MQTT_HOST", "broker.emqx.io"), help="MQTT broker host")
+    parser.add_argument("--mqtt-host", default=os.getenv("MQTT_HOST", "test.mosquitto.org"), help="MQTT broker host")
     parser.add_argument("--mqtt-port", type=int, default=1883, help="MQTT broker port")
     args = parser.parse_args()
     

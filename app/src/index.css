@@ -129,3 +129,15 @@
   background: hsl(var(--primary) / 0.3);
   color: hsl(var(--foreground));
 }
+
+/* Blockchain feed slide-in animation */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
