@@ -543,8 +543,6 @@ export default function LandingPage() {
                 </span>
               </div>
             </div>
-          </div>
-        </div>
       </section>
 
       {/* ── FOOTER ── */}
