@@ -13,8 +13,6 @@ from contextlib import asynccontextmanager
 import paho.mqtt.client as mqtt
 from fastapi import FastAPI, BackgroundTasks, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import os
 
@@ -425,21 +423,9 @@ async def websocket_endpoint(websocket: WebSocket):
         print(f"WebSocket error: {e}")
         manager.disconnect(websocket)
 
-# ── React SPA Serving (Must be at the very bottom!) ───────────────────────────
-dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "app", "dist"))
-
-# Only mount if the dist directory exists (i.e., after npm run build)
-if os.path.exists(dist_dir):
-    app.mount("/assets", StaticFiles(directory=os.path.join(dist_dir, "assets")), name="assets")
-
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        path_in_dist = os.path.join(dist_dir, full_path)
-        if full_path and os.path.isfile(path_in_dist):
-            return FileResponse(path_in_dist)
-        return FileResponse(os.path.join(dist_dir, "index.html"))
-else:
-    print("⚠️  Warning: React 'dist' directory not found. Frontend will not be served.")
+# ── React SPA Serving Removed (Decoupled Frontend) ───────────────────────────
+# The frontend is now meant to be hosted separately (e.g. on Vercel)
+# while this FastAPI server acts solely as the backend data and WebSocket provider.
 
 
 if __name__ == "__main__":

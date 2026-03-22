@@ -162,7 +162,7 @@ function useAnalyticsPolling(interval: number = 5000) {
       try {
         // Fetch market status FIRST to include in history
         let currentMarketPrice = 0.15;
-        const marketRes = await fetch('/api/market/status');
+        const marketRes = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/market/status`);
         if (marketRes.ok) {
           const marketData = await marketRes.json();
           setMarketStatus(marketData);
@@ -170,7 +170,7 @@ function useAnalyticsPolling(interval: number = 5000) {
         }
 
         // Fetch analytics
-        const analyticsRes = await fetch('/api/analytics/summary');
+        const analyticsRes = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/analytics/summary`);
         if (analyticsRes.ok) {
           const analyticsData = await analyticsRes.json();
           setAnalytics(analyticsData);
@@ -205,7 +205,8 @@ function useAnalyticsPolling(interval: number = 5000) {
 // Main App Component
 function App() {
   const wsProtocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = typeof window !== 'undefined' ? `${wsProtocol}//${window.location.host}/ws` : 'ws://localhost:8000/ws';
+  const defaultWsUrl = typeof window !== 'undefined' ? `${wsProtocol}//${window.location.host}/ws` : 'ws://localhost:8000/ws';
+  const wsUrl = import.meta.env.VITE_WS_URL || defaultWsUrl;
   const { connected, buildings, logs, gridEvents } = useWebSocket(wsUrl);
   const { analytics, marketStatus, history } = useAnalyticsPolling(5000);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingTelemetry | null>(null);
@@ -219,7 +220,7 @@ function App() {
 
   const triggerEvent = async (type: string, payload: any = {}) => {
     try {
-      await fetch('/api/grid/event', {
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/grid/event`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ event_type: type, ...payload })
