@@ -6,17 +6,25 @@ import App from './App.tsx'
 import LandingPage from './pages/LandingPage.tsx'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ErrorBoundary>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/dashboard" element={<App />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </ErrorBoundary>
-  </StrictMode>,
-)
-
+try {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/dashboard" element={<App />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </ErrorBoundary>
+    </StrictMode>,
+  )
+} catch (err: any) {
+  const root = document.getElementById('root')
+  if (root) {
+    root.style.cssText = 'padding:2rem;color:#ef4444;font-family:monospace;background:#0f172a;min-height:100vh'
+    root.innerHTML = `<h2>EcoSync Mount Error</h2><pre>${err?.stack || err}</pre>`
+  }
+  console.error('Mount error:', err)
+}
