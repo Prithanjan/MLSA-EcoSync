@@ -9,6 +9,11 @@ import {
   EnergyFlowDiagram,
   P2PNetworkVisualization,
 } from '@/components/landing/TechVisualizations';
+import { MasonryProblemStatement } from '@/components/landing/MasonryProblemStatement';
+import { StepperHowItWorks } from '@/components/landing/StepperHowItWorks';
+import { BounceCardsTechStack } from '@/components/landing/BounceCardsTechStack';
+import { ArchitectureFlow } from '@/components/landing/ArchitectureFlow';
+import { WebGLFooter } from '@/components/landing/WebGLFooter';
 
 /* ─────────────────────────────────────────────
    Animated Canvas Background
@@ -380,6 +385,15 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── PROBLEM STATEMENT ── */}
+      <section id="problem" className="relative py-24 px-6" style={{ zIndex: 1 }}>
+        <Separator />
+        <div className="max-w-6xl mx-auto mt-16">
+          <SectionHeading tag="The Challenge" title="Why the Grid is Breaking" sub="Traditional energy systems weren't built for a decentralized world." />
+          <MasonryProblemStatement />
+        </div>
+      </section>
+
       {/* ── STATS ── */}
       <section id="stats" className="relative py-20" style={{ zIndex: 1 }}>
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/20 via-transparent to-emerald-950/20 pointer-events-none" />
@@ -427,21 +441,24 @@ export default function LandingPage() {
       <section id="how" className="relative py-28 px-6" style={{ zIndex: 1 }}>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/30 to-transparent pointer-events-none" />
         <div className="max-w-4xl mx-auto relative">
-          <SectionHeading tag="Process" title="How It Works" sub="Four steps, zero waste, infinite possibility." />
-          <div className="space-y-10 mt-14">
-            <StepRow num="1" isLeft accentGrad="from-emerald-500 to-green-600" delay={0}
-              title="Buildings Sense & Simulate"
-              desc="Each of the 50 virtual buildings continuously measures its solar generation, battery state-of-charge, and current load — publishing live data via MQTT every 5 seconds." />
-            <StepRow num="2" isLeft={false} accentGrad="from-purple-500 to-violet-600" delay={100}
-              title="AI Agents Decide"
-              desc="A LangGraph AI agent analyses each building's state and negotiates P2P energy trades — buying from surplus neighbours, selling to those in need." />
-            <StepRow num="3" isLeft accentGrad="from-blue-500 to-cyan-600" delay={200}
-              title="FastAPI Bridges Everything"
-              desc="The Python backend relays MQTT telemetry to the frontend over WebSocket in real time — keeping your 3D city perfectly in sync with the simulation." />
-            <StepRow num="4" isLeft={false} accentGrad="from-amber-500 to-orange-600" delay={300}
-              title="You See It All in 3D"
-              desc="The React + Three.js dashboard renders every building's live status as a glowing colour in the city grid — green for selling, amber for buying, red for critical." />
-          </div>
+          <SectionHeading tag="Process" title="How It Works" sub="5 steps, from solar panel to blockchain." />
+          <StepperHowItWorks />
+        </div>
+      </section>
+
+      {/* ── TECH STACK ── */}
+      <section id="tech-stack" className="relative py-24 px-6" style={{ zIndex: 1 }}>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <SectionHeading tag="Engine" title="Built with Production-Grade Tools" sub="We don't just simulate. We build on a battle-tested stack." />
+          <BounceCardsTechStack />
+        </div>
+      </section>
+
+      {/* ── ARCHITECTURE ── */}
+      <section id="architecture" className="relative py-24 px-6" style={{ zIndex: 1 }}>
+        <div className="max-w-6xl mx-auto">
+          <SectionHeading tag="Flow" title="How All the Pieces Connect" sub="A dynamic pipeline from physical sensors to blockchain settlement." />
+          <ArchitectureFlow />
         </div>
       </section>
 
@@ -573,21 +590,8 @@ export default function LandingPage() {
             </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="relative border-t border-white/6 py-8 px-6" style={{ zIndex: 1 }}>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center">
-              <Zap className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="font-bold text-emerald-400 text-sm">EcoSync</span>
-            <span className="text-slate-600 text-sm">— Smart City Energy Microgrid</span>
-          </div>
-          <span className="text-slate-700 text-xs">
-            Built with ♥ for a sustainable future · MIT License
-          </span>
-        </div>
-      </footer>
+      {/* ── WEBGL FOOTER ── */}
+      <WebGLFooter />
     </div>
   );
 }
