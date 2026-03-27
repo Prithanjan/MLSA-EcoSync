@@ -59,49 +59,28 @@
 }
 
 @layer utilities {
-  /* Neon glow utilities */
+  /* Subtle clean glows */
   .glow-emerald {
-    box-shadow: 0 0 10px hsl(var(--neon-emerald) / 0.5),
-                0 0 20px hsl(var(--neon-emerald) / 0.3),
-                0 0 30px hsl(var(--neon-emerald) / 0.2);
+    box-shadow: 0 4px 20px hsl(var(--neon-emerald) / 0.15);
   }
   
   .glow-green {
-    box-shadow: 0 0 10px hsl(var(--neon-green) / 0.5),
-                0 0 20px hsl(var(--neon-green) / 0.3);
-  }
-  
-  .text-glow {
-    text-shadow: 0 0 10px hsl(var(--neon-emerald) / 0.8);
+    box-shadow: 0 4px 20px hsl(var(--neon-green) / 0.15);
   }
   
   /* Glass effect */
   .glass {
-    @apply bg-card/80 backdrop-blur-md;
+    @apply bg-card/60 backdrop-blur-xl border border-white/5 shadow-lg;
   }
   
-  /* Gradient text */
+  /* Gradient text - refined vibrance */
   .gradient-text {
-    @apply bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent;
   }
   
   /* Animation utilities */
   .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite alternate;
-  }
-  
-  @keyframes glow {
-    from {
-      box-shadow: 0 0 5px hsl(var(--neon-emerald) / 0.5);
-    }
-    to {
-      box-shadow: 0 0 20px hsl(var(--neon-emerald) / 0.8),
-                  0 0 30px hsl(var(--neon-green) / 0.4);
-    }
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 }
 

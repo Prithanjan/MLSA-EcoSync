@@ -208,7 +208,7 @@ export function CityGrid({ buildings, onBuildingClick }: CityGridProps) {
     <div className="w-full h-full">
       <Canvas
         camera={{ position: [15, 12, 15], fov: 45 }}
-        style={{ background: 'linear-gradient(to bottom, #0f172a, #1e293b)' }}
+        style={{ background: 'transparent' }}
         dpr={[1, 1.5]}                          // cap pixel ratio for performance
         performance={{ min: 0.5 }}              // auto scale-down on slow GPU
       >

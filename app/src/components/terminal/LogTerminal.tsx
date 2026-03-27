@@ -83,9 +83,9 @@ export function LogTerminal({ logs, maxLogs = 100 }: LogTerminalProps) {
   const displayLogs = logs.slice(-maxLogs);
 
   return (
-    <div className="h-full flex flex-col bg-slate-950 border border-emerald-500/30 rounded-lg overflow-hidden">
+    <div className="h-full flex flex-col bg-background border border-border rounded-lg overflow-hidden">
       {/* Terminal Header */}
-      <div className="flex items-center justify-between px-3 py-2 bg-slate-900 border-b border-emerald-500/30">
+      <div className="flex items-center justify-between px-3 py-2 bg-background/80 border-b border-border">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500" />
           <div className="w-3 h-3 rounded-full bg-amber-500" />
@@ -114,7 +114,7 @@ export function LogTerminal({ logs, maxLogs = 100 }: LogTerminalProps) {
             displayLogs.map((log, index) => (
               <div 
                 key={`${log.timestamp}-${index}`}
-                className="flex items-start gap-2 py-0.5 hover:bg-slate-900/50 rounded px-1"
+                className="flex items-start gap-2 py-0.5 hover:bg-muted/50 rounded px-1"
               >
                 {/* Timestamp */}
                 <span className="text-slate-500 shrink-0 w-16">
@@ -151,7 +151,7 @@ export function LogTerminal({ logs, maxLogs = 100 }: LogTerminalProps) {
       </ScrollArea>
 
       {/* Terminal Footer */}
-      <div className="px-3 py-1 bg-slate-900 border-t border-emerald-500/30 text-xs text-slate-500">
+      <div className="px-3 py-1 bg-background/80 border-t border-border text-xs text-slate-500">
         <span className="text-emerald-500">➜</span> EcoSync Agent Network v1.0.0
       </div>
     </div>

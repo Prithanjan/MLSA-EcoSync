@@ -4,6 +4,18 @@ module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"Outfit"', 'sans-serif'],
+      },
+      width: {
+        'golden-max': '61.803%',
+        'golden-min': '38.197%',
+      },
+      spacing: {
+        'golden': '1.618rem',
+        'golden-double': '3.236rem',
+        'golden-half': '0.809rem',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

@@ -231,9 +231,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
+    <div className="min-h-screen bg-background text-foreground font-sans">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/40 backdrop-blur-xl border-b border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border shadow-sm">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -299,7 +299,7 @@ function App() {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80 bg-slate-900 border-emerald-500/30">
+            <SheetContent side="right" className="w-80 bg-background border-border">
               <SheetHeader>
                 <SheetTitle className="text-emerald-400">System Status</SheetTitle>
               </SheetHeader>
@@ -361,7 +361,7 @@ function App() {
             
             {/* Building Info Overlay */}
             {selectedBuilding && (
-              <div className="absolute top-4 left-4 bg-slate-900/90 backdrop-blur-md border border-emerald-500/30 rounded-lg p-4 max-w-xs">
+              <div className="absolute top-4 left-4 glass rounded-lg p-4 max-w-xs">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-bold text-emerald-400">
                     Building #{selectedBuilding.building_id}
@@ -416,7 +416,7 @@ function App() {
             )}
 
             {/* Legend */}
-            <div className="absolute bottom-4 left-4 bg-slate-900/90 backdrop-blur-md border border-emerald-500/30 rounded-lg p-3">
+            <div className="absolute bottom-4 left-4 glass rounded-lg p-3">
               <h4 className="text-xs font-bold text-slate-400 mb-2">Legend</h4>
               <div className="space-y-1 text-xs">
                 <div className="flex items-center gap-2">
@@ -444,7 +444,7 @@ function App() {
           </div>
 
           {/* Sidebar - Analytics */}
-          <div className="hidden lg:flex lg:flex-col w-96 bg-slate-900/50 border-l border-emerald-500/30 overflow-y-auto overflow-x-hidden">
+          <div className="hidden lg:flex lg:flex-col w-golden-min bg-background/50 border-l border-border overflow-y-auto overflow-x-hidden">
             <div className="p-4 min-w-0">
               <div className="flex items-center gap-2 mb-5 pb-3 border-b border-emerald-500/20">
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
@@ -468,11 +468,11 @@ function App() {
 
         {/* Terminal Section */}
         <div 
-          className={`border-t border-emerald-500/30 bg-slate-950 transition-all duration-300 ${
+          className={`border-t border-border bg-background transition-all duration-300 ${
             terminalExpanded ? 'h-96' : 'h-48'
           }`}
         >
-          <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-emerald-500/30">
+          <div className="flex items-center justify-between px-4 py-2 bg-background/80 border-b border-border">
             <div className="flex items-center gap-2">
               <Cloud className="w-4 h-4 text-emerald-400" />
               <span className="text-sm font-medium text-emerald-400">AI Agent Logs</span>
