@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import type { Plugin } from "vite"
 import { spawn, ChildProcess } from "child_process"
-import cesium from "vite-plugin-cesium"
 import * as fs from "fs"
 
 // ---------------------------------------------------------------------------
@@ -66,7 +65,6 @@ export default defineConfig(({ command }) => ({
   base: '/',
   plugins: [
     react(),
-    cesium(),
     ...(command === 'serve' ? [autoBackend()] : [])
   ],
   resolve: {
@@ -76,10 +74,7 @@ export default defineConfig(({ command }) => ({
   },
   build: {
     target: 'es2020',
-    chunkSizeWarningLimit: 4000,
-    rollupOptions: {
-      external: [],
-    },
+    chunkSizeWarningLimit: 1000,
   },
   preview: {
     proxy: {

@@ -27,12 +27,10 @@ export interface AgentLog {
 }
 
 export interface GridEvent {
-  type: 'cloud_cover' | 'grid_failure' | 'price_update' | 'weather_change';
+  type: 'cloud_cover' | 'grid_failure' | 'price_update';
   active: boolean;
   intensity?: number;
   price?: number;
-  weather?: string;
-  duration?: number;
   timestamp: string;
 }
 

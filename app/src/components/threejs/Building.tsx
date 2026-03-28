@@ -7,14 +7,13 @@ import type { BuildingTelemetry } from '@/types';
 interface BuildingProps {
   data: BuildingTelemetry;
   position: [number, number, number];
-  geoScaleY?: number;
-  geoShape?: THREE.Shape;
   onClick?: (data: BuildingTelemetry) => void;
 }
 
-export function Building({ data, position, geoScaleY, geoShape, onClick }: BuildingProps) {
+export function Building({ data, position, onClick }: BuildingProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Group>(null);
+  const topRef = useRef<THREE.Mesh>(null);
 
   // Determine building color based on state
   const { color, emissive, height, scaleY } = useMemo(() => {
@@ -59,14 +58,9 @@ export function Building({ data, position, geoScaleY, geoShape, onClick }: Build
       default:
         height *= 1.1;
     }
-    
-    // Apply geospatial scale if provided
-    if (geoScaleY !== undefined) {
-      height *= geoScaleY;
-    }
 
     return { color, emissive, height, scaleY };
-  }, [data, geoScaleY]);
+  }, [data]);
 
   // Generate procedural window texture
   const windowTexture = useMemo(() => {
@@ -110,7 +104,7 @@ export function Building({ data, position, geoScaleY, geoShape, onClick }: Build
   useFrame((state) => {
     if (meshRef.current) {
       if (data.is_critical) {
-        const pulse = 1 + Math.sin(state.clock.elapsedTime * 6) * 0.02;
+        const pulse = 1 + Math.sin(state.clock.elapsedTime * 6) * 0.05;
         meshRef.current.scale.setScalar(pulse);
       } else {
         meshRef.current.scale.setScalar(1);
@@ -119,17 +113,20 @@ export function Building({ data, position, geoScaleY, geoShape, onClick }: Build
 
     if (glowRef.current) {
       glowRef.current.rotation.y += 0.02;
-      glowRef.current.position.y = ((height * scaleY) / 2) + Math.sin(state.clock.elapsedTime * 2 + data.building_id) * 0.02;
+      glowRef.current.position.y = (height / 2) + Math.sin(state.clock.elapsedTime * 2 + data.building_id) * 0.15;
+    }
+    
+    if (topRef.current) {
+      topRef.current.rotation.y -= 0.03;
     }
   });
 
   return (
     <group position={position}>
-      {/* Main Building Base - using extrude topology if provided */}
+      {/* Main Building Base */}
       <mesh
         ref={meshRef}
-        position={geoShape ? [0, 0, 0] : [0, (height * scaleY) / 2, 0]}
-        rotation={geoShape ? [-Math.PI / 2, 0, 0] : [0, 0, 0]}
+        position={[0, (height * scaleY) / 2, 0]}
         onClick={() => onClick?.(data)}
         onPointerOver={(e) => {
           e.stopPropagation();
@@ -139,11 +136,7 @@ export function Building({ data, position, geoScaleY, geoShape, onClick }: Build
           document.body.style.cursor = 'auto';
         }}
       >
-        {geoShape ? (
-          <extrudeGeometry args={[geoShape, { depth: height * scaleY, bevelEnabled: false }]} />
-        ) : (
-          <boxGeometry args={[0.8, height * scaleY, 0.8]} />
-        )}
+        <boxGeometry args={[0.8, height * scaleY, 0.8]} />
         <meshStandardMaterial
           color={color}
           map={windowTexture}
@@ -156,9 +149,20 @@ export function Building({ data, position, geoScaleY, geoShape, onClick }: Build
         <Edges scale={1.01} color={emissive} />
       </mesh>
 
+      {/* Building core / tower top */}
+      <mesh ref={topRef} position={[0, height * scaleY + 0.25, 0]}>
+        <cylinderGeometry args={[0.15, 0.35, 0.5, 4]} />
+        <meshStandardMaterial 
+          color={emissive} 
+          emissive={emissive} 
+          emissiveIntensity={1.2} 
+        />
+        <Edges scale={1.05} color="#ffffff" />
+      </mesh>
+
       {/* Holographic rings for active buildings */}
       {(data.is_selling || data.is_buying || data.is_critical) && (
-        <group ref={glowRef} position={[0, (height * scaleY) / 2, 0]}>
+        <group ref={glowRef} position={[0, height / 2, 0]}>
           <mesh position={[0, 0.2, 0]} rotation={[Math.PI / 2, 0, 0]}>
             <torusGeometry args={[0.7, 0.02, 16, 32]} />
             <meshBasicMaterial color={color} transparent opacity={0.8} />
@@ -168,6 +172,16 @@ export function Building({ data, position, geoScaleY, geoShape, onClick }: Build
             <meshBasicMaterial color={color} transparent opacity={0.4} />
           </mesh>
         </group>
+      )}
+
+      {/* Energy flow indicator beacon */}
+      {data.net_energy !== 0 && (
+        <mesh position={[0, height * scaleY + 0.8, 0]}>
+          <sphereGeometry args={[data.is_critical ? 0.2 : 0.12, 16, 16]} />
+          <meshBasicMaterial
+            color={data.net_energy > 0 ? '#22c55e' : '#f59e0b'}
+          />
+        </mesh>
       )}
 
       {/* Ground Projection / Base Plate */}

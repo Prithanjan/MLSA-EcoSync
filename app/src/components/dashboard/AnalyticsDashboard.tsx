@@ -18,9 +18,8 @@ import {
 } from 'recharts';
 
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, Minus, Zap, Battery, Activity, DollarSign, ShoppingCart, Store, AlertCircle, Sun, Cloud } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Zap, Battery, Activity, DollarSign, ShoppingCart, Store, AlertCircle } from 'lucide-react';
 import type { BuildingTelemetry, AnalyticsSummary, MarketStatus } from '@/types';
-import type { WeatherData } from '@/hooks/useWeather';
 
 interface AnalyticsDashboardProps {
   buildings: BuildingTelemetry[];
@@ -28,11 +27,6 @@ interface AnalyticsDashboardProps {
   marketStatus: MarketStatus | null;
   history: { time: string; load: number; generation: number; efficiency: number; price?: number }[];
   onBuildingSelect?: (building: BuildingTelemetry) => void;
-  onTriggerEvent?: (type: string, payload?: any) => void;
-  activeWeather?: string;
-  activePowerSources?: Record<string, boolean>;
-  onTogglePowerSource?: (source: string) => void;
-  weatherData?: WeatherData | null;
 }
 
 const COLORS = {
@@ -78,11 +72,9 @@ const MetricCard = memo(function MetricCard({
 
   return (
     <div
-      className="group relative flex flex-col gap-2 rounded-xl p-4 overflow-hidden transition-all duration-300 hover:scale-[1.02] cursor-default"
+      className="glass group relative flex flex-col gap-[0.809rem] rounded-xl p-[1.618rem] overflow-hidden transition-all duration-300 hover:scale-[1.02] cursor-default"
       style={{
-        background: 'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(2,44,34,0.3) 100%)',
-        border: `1px solid ${color}30`,
-        boxShadow: `0 0 0 0 ${color}00`,
+        borderColor: `${color}30`,
       }}
       onMouseEnter={e => {
         (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 20px ${glowColor || color}25, inset 0 0 20px ${color}08`;
@@ -150,10 +142,9 @@ interface StatCardProps {
 const StatCard = memo(function StatCard({ label, value, sub, color, icon: Icon, description }: StatCardProps) {
   return (
     <div
-      className="flex flex-col gap-2 rounded-xl p-3.5 transition-all duration-200 cursor-default"
+      className="glass flex flex-col gap-2 rounded-xl p-3.5 transition-all duration-200 cursor-default"
       style={{
-        background: 'rgba(15,23,42,0.8)',
-        border: `1px solid ${color}25`,
+        borderColor: `${color}25`,
       }}
       title={description}
     >
@@ -182,19 +173,12 @@ function SectionHeader({ title, accent = false }: { title: string; accent?: bool
 }
 
 // ─── Main Component ──────────────────────────────────────────────────────────
-import { GodModePanel } from './GodModePanel';
-
 export function AnalyticsDashboard({
   buildings,
   analytics,
   marketStatus,
   history,
   onBuildingSelect,
-  onTriggerEvent,
-  activeWeather = 'CLEAR',
-  activePowerSources = {},
-  onTogglePowerSource,
-  weatherData,
 }: AnalyticsDashboardProps) {
 
   const statusDistribution = useMemo(() => [
@@ -262,50 +246,6 @@ export function AnalyticsDashboard({
           />
         </div>
       </div>
-
-      {/* ── Section 1b: Live Weather ── */}
-      {weatherData && (
-        <div>
-          <SectionHeader title={`Weather in ${weatherData.city}`} accent />
-          <div className="grid grid-cols-2 gap-3">
-             <MetricCard
-               label="Temperature"
-               value={`${weatherData.temp}`}
-               unit="°C"
-               color={COLORS.amber}
-               icon={Sun}
-               description="Real-world temperature at selected location"
-               glowColor={COLORS.amber}
-             />
-             <MetricCard
-               label="Conditions"
-               value={weatherData.description}
-               color={COLORS.cyan}
-               icon={Cloud}
-               description={`Live weather maps to Grid Event: ${weatherData.gridCondition}`}
-               glowColor={COLORS.cyan}
-             />
-          </div>
-        </div>
-      )}
-
-      {/* ── Section: God Mode Control Panel ── */}
-      {onTriggerEvent && (
-        <div className="mt-6 mb-2">
-          <SectionHeader title="Simulation Controls" accent />
-          <div
-            className="rounded-xl p-4"
-            style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(16,185,129,0.3)' }}
-          >
-            <GodModePanel 
-              onTriggerEvent={onTriggerEvent} 
-              activeWeather={activeWeather}
-              activePowerSources={activePowerSources}
-              onTogglePowerSource={onTogglePowerSource || (() => {})}
-            />
-          </div>
-        </div>
-      )}
 
       {/* ── Section 2: Market Stats ── */}
       {marketStatus && (
@@ -382,10 +322,7 @@ export function AnalyticsDashboard({
       {/* ── Section 3: Grid Performance Chart ── */}
       <div>
         <SectionHeader title="Grid Performance vs Traditional" accent />
-        <div
-          className="rounded-xl p-4"
-          style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(16,185,129,0.2)' }}
-        >
+        <div className="glass rounded-xl p-4">
           <div className="w-full" style={{ height: 180 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={history} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -421,10 +358,7 @@ export function AnalyticsDashboard({
       {/* ── Section 4: Load vs Generation ── */}
       <div>
         <SectionHeader title="Load vs Generation — Live" accent />
-        <div
-          className="rounded-xl p-4"
-          style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(16,185,129,0.2)' }}
-        >
+        <div className="glass rounded-xl p-4">
           <div className="w-full" style={{ height: 160 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={history.slice(-20)} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -450,10 +384,7 @@ export function AnalyticsDashboard({
       {/* ── Section 5: Building Status Pie ── */}
       <div>
         <SectionHeader title="Building Status Distribution" accent />
-        <div
-          className="rounded-xl p-4"
-          style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(16,185,129,0.2)' }}
-        >
+        <div className="glass rounded-xl p-4">
           <div className="w-full" style={{ height: 180 }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -482,10 +413,7 @@ export function AnalyticsDashboard({
       {/* ── Section 6: Battery Levels ── */}
       <div>
         <SectionHeader title="Top Battery Levels" accent />
-        <div
-          className="rounded-xl p-4"
-          style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(16,185,129,0.2)' }}
-        >
+        <div className="glass rounded-xl p-4">
           <div className="w-full" style={{ height: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
@@ -533,10 +461,7 @@ export function AnalyticsDashboard({
       {/* ── Section 7: Market Price History ── */}
       <div>
         <SectionHeader title="Market Price History" accent />
-        <div
-          className="rounded-xl p-4"
-          style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(16,185,129,0.2)' }}
-        >
+        <div className="glass rounded-xl p-4">
           <div className="w-full" style={{ height: 160 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={history} margin={{ top: 4, right: 4, left: -8, bottom: 0 }}>

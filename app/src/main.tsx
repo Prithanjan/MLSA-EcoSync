@@ -4,8 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import LandingPage from './pages/LandingPage.tsx'
-import StartScreen from './pages/StartScreen.tsx'
-import PostalMapView from './pages/PostalMapView.tsx'
+import IntroPage from './pages/IntroPage.tsx'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
 try {
@@ -15,8 +14,7 @@ try {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/start" element={<StartScreen />} />
-            <Route path="/map" element={<PostalMapView />} />
+            <Route path="/intro" element={<IntroPage />} />
             <Route path="/dashboard" element={<App />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

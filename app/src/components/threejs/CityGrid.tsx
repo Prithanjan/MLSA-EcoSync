@@ -1,33 +1,17 @@
-import { useRef, useMemo, Suspense } from 'react';
+import { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
+import { OrbitControls, Grid, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { Building } from './Building';
-import { WeatherEffects } from './WeatherEffects';
-import { NeuralWires, POWER_SOURCE_POSITIONS } from './NeuralWires';
-import { Particles } from './Particles';
-import { WindTurbine, SolarPlant, ThermalPlant, HydroPlant } from './PowerPlants';
 import type { BuildingTelemetry } from '@/types';
-
-// Convert WGS84 coordinates to EPSG:3857 Web Mercator to flawlessly map the flat raster floor tile distortions
-function latLngToMercator(lng: number, lat: number) {
-  const R = 6378137;
-  const x = R * (lng * Math.PI / 180);
-  const y = R * Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI / 180) / 2));
-  return { x, y };
-}
 
 interface CityGridProps {
   buildings: BuildingTelemetry[];
-  geoBuildings?: any[];
   onBuildingClick?: (data: BuildingTelemetry) => void;
-  activeWeather?: string;
-  activeEvents?: { type: string }[];
-  activePowerSources?: Record<string, boolean>;
 }
 
 // Animated energy particles flowing between buildings
-function EnergyParticles({ activeWeather, activeEvents }: { activeWeather?: string, activeEvents?: { type: string }[] }) {
+function EnergyParticles() {
   const pointsRef    = useRef<THREE.Points>(null);
   const particleCount = 50;           // was 100 — halved for performance
   const frameRef     = useRef(0);     // for throttling drift calculation
@@ -57,12 +41,8 @@ function EnergyParticles({ activeWeather, activeEvents }: { activeWeather?: stri
       const computeDrift = frameRef.current % 2 === 0; // drift only every other frame
       
       for (let i = 0; i < particleCount; i++) {
-        // Slow down based on grid conditions
-        const hasGridFailure = activeEvents?.some(e => e.type === 'grid_failure');
-        const speedMultiplier = hasGridFailure ? 0.1 : (activeWeather === 'STORM' ? 0.5 : (activeWeather === 'HEAT_WAVE' ? 0.2 : 1.0));
-        
         // Animate particles flowing upward
-        positions[i * 3 + 1] += 0.02 * speedMultiplier;
+        positions[i * 3 + 1] += 0.02;
         
         // Reset if too high
         if (positions[i * 3 + 1] > 5) {
@@ -101,127 +81,82 @@ function EnergyParticles({ activeWeather, activeEvents }: { activeWeather?: stri
   );
 }
 
+// Grid floor with glowing scanner effect
 function GridFloor() {
+  const scanRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (scanRef.current) {
+      // Create a sweeping radar/scanline effect
+      scanRef.current.position.z = (Math.sin(state.clock.elapsedTime * 0.5) * 20);
+    }
+  });
+
   return (
-    <group position={[0, -0.05, 0]}>
-      {/* Underlying dark plane */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[100, 100]} />
-        <meshBasicMaterial color="#020617" />
+    <group>
+      <Grid
+        position={[0, 0, 0]}
+        args={[40, 40]}
+        cellSize={1}
+        cellThickness={0.8}
+        cellColor="#059669"
+        sectionSize={5}
+        sectionThickness={1.5}
+        sectionColor="#10b981"
+        fadeDistance={30}
+        fadeStrength={1}
+        infiniteGrid
+      />
+      
+      {/* Glowing base plane */}
+      <mesh position={[0, -0.1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[50, 50]} />
+        <meshBasicMaterial
+          color="#022c22"
+          transparent
+          opacity={0.6}
+        />
       </mesh>
-      {/* Glowing cyber grid - evenly spaced uniform bottom */}
-      <gridHelper args={[100, 50, '#10b981', '#065f46']} position={[0, 0.01, 0]} />
+
+      {/* Scanning radar line */}
+      <mesh ref={scanRef} position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[40, 2]} />
+        <meshBasicMaterial
+          color="#34d399"
+          transparent
+          opacity={0.15}
+          side={THREE.DoubleSide}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
     </group>
   );
 }
 
 // Scene content
-function Scene({ buildings, geoBuildings, onBuildingClick, activeWeather = 'CLEAR', activeEvents = [], activePowerSources = {} }: CityGridProps) {
+function Scene({ buildings, onBuildingClick }: CityGridProps) {
   const groupRef = useRef<THREE.Group>(null);
 
-  // Arrange buildings uniformly on synth grid, keeping external geoShapes
-  const { layout: buildingLayout, bgBuildings } = useMemo(() => {
-    const layout: { [key: number]: { position: [number, number, number], scaleY: number, geoShape?: THREE.Shape } } = {};
-    const bgBuildings: { position: [number, number, number], scaleY: number, geoShape?: THREE.Shape }[] = [];
-    
-    // Geospatial layout
-    if (geoBuildings && geoBuildings.length > 0 && buildings.length > 0) {
-      const cols = 10;
-      const spacing = 3;
-      const offsetX = ((cols - 1) * spacing) / 2;
-      const offsetZ = ((Math.ceil(buildings.length / cols) - 1) * spacing) / 2;
-      const localScale = 0.05; // Base map scale multiplier for shapes (1 meter = 0.05 units)
-      
-      const geoCenters = geoBuildings.map(f => {
-        const geom = f.geometry;
-        let rings: any[] = [];
-        
-        if (geom?.type === 'Polygon') {
-          rings = geom.coordinates;
-        } else if (geom?.type === 'MultiPolygon') {
-          rings = geom.coordinates[0];
-        }
-        
-        return { height: f.properties?.render_height || f.properties?.height || 10, rings };
-      });
-      
-      // Evenly spread across a synthetic grid via row/col math
-      geoCenters.forEach((geo, index) => {
-        const col = index % cols;
-        const row = Math.floor(index / cols);
-        const x = col * spacing - offsetX;
-        const z = row * spacing - offsetZ;
-        const scaleY = Math.max(0.5, Math.min(5, geo.height / 10)); // Height extrusion limit
-        
-        let geoShape: THREE.Shape | undefined = undefined;
-        if (geo.rings && geo.rings.length > 0) {
-          geoShape = new THREE.Shape();
-          const ring = geo.rings[0];
-          
-          let minM_X = Infinity, maxM_X = -Infinity, minM_Y = Infinity, maxM_Y = -Infinity;
-          const mercatorPoints = ring.map((coord: number[]) => {
-             const vM = latLngToMercator(coord[0], coord[1]);
-             minM_X = Math.min(minM_X, vM.x);
-             maxM_X = Math.max(maxM_X, vM.x);
-             minM_Y = Math.min(minM_Y, vM.y);
-             maxM_Y = Math.max(maxM_Y, vM.y);
-             return vM;
-          });
-          
-          const centerM_X = minM_X + (maxM_X - minM_X) / 2;
-          const centerM_Y = minM_Y + (maxM_Y - minM_Y) / 2;
-          
-          mercatorPoints.forEach((vM: any, i: number) => {
-             const localX = (vM.x - centerM_X) * localScale;
-             const localY = -((vM.y - centerM_Y) * localScale); // Reverse Y for shape projection
-             if (i === 0) geoShape!.moveTo(localX, localY);
-             else geoShape!.lineTo(localX, localY);
-          });
-        }
-        
-        // Associate to API buildings sequentially
-        if (index < buildings.length) {
-          layout[buildings[index].building_id] = { position: [x, 0, z], scaleY, geoShape };
-        } else {
-          bgBuildings.push({ position: [x, 0, z], scaleY, geoShape });
-        }
-      });
-      
-      // Fill missing layout spots if GeoJSON returned < 50 buildings
-      for (let i = geoCenters.length; i < buildings.length; i++) {
-        const col = i % cols;
-        const row = Math.floor(i / cols);
-        layout[buildings[i].building_id] = { position: [col * spacing - offsetX, 0, row * spacing - offsetZ], scaleY: 1 };
-      }
-      
-      return { layout, bgBuildings };
-    }
-    
-    // Fallback grid pattern if GeoJSON fails
+  // Arrange buildings in a grid pattern
+  const buildingPositions = useMemo(() => {
+    const positions: { [key: number]: [number, number, number] } = {};
     const cols = 10;
-    const spacing = 3;
+    const spacing = 2;
     const offsetX = ((cols - 1) * spacing) / 2;
     const offsetZ = ((Math.ceil(buildings.length / cols) - 1) * spacing) / 2;
 
     buildings.forEach((building, index) => {
       const col = index % cols;
       const row = Math.floor(index / cols);
-      layout[building.building_id] = {
-        position: [col * spacing - offsetX, 0, row * spacing - offsetZ],
-        scaleY: 1
-      };
+      positions[building.building_id] = [
+        col * spacing - offsetX,
+        0,
+        row * spacing - offsetZ
+      ];
     });
 
-    return { layout, bgBuildings };
-  }, [buildings, geoBuildings]);
-
-  const buildingPositions = useMemo(() => {
-    const posRecord: Record<number, [number, number, number]> = {};
-    Object.keys(buildingLayout).forEach(k => {
-      posRecord[Number(k)] = buildingLayout[Number(k)].position;
-    });
-    return posRecord;
-  }, [buildingLayout]);
+    return positions;
+  }, [buildings.length]);
 
   useFrame((state) => {
     if (groupRef.current) {
@@ -233,60 +168,16 @@ function Scene({ buildings, geoBuildings, onBuildingClick, activeWeather = 'CLEA
   return (
     <group ref={groupRef}>
       <GridFloor />
-      <WeatherEffects weather={activeWeather} />
-      <EnergyParticles activeWeather={activeWeather} activeEvents={activeEvents} />
-      <Particles />
+      <EnergyParticles />
       
-      {/* Background GeoJSON Buildings */}
-      {bgBuildings.map((b, i) => (
-         <group key={`bg-${i}`} position={b.position}>
-            {/* Base rotation aligns extruded shapes vertically to snap to the floor plane */}
-            <mesh position={b.geoShape ? [0, 0, 0] : [0, b.scaleY / 2, 0]} rotation={b.geoShape ? [-Math.PI / 2, 0, 0] : [0, 0, 0]}>
-               {b.geoShape ? (
-                  <extrudeGeometry args={[b.geoShape, { depth: b.scaleY, bevelEnabled: false }]} />
-               ) : (
-                  <boxGeometry args={[0.8, b.scaleY, 0.8]} />
-               )}
-               {/* Extremely subtle dark styling for ambient background surroundings */}
-               <meshStandardMaterial color="#0f172a" roughness={0.8} metalness={0.2} transparent opacity={0.6} />
-            </mesh>
-         </group>
+      {buildings.map((building) => (
+        <Building
+          key={building.building_id}
+          data={building}
+          position={buildingPositions[building.building_id] || [0, 0, 0]}
+          onClick={onBuildingClick}
+        />
       ))}
-
-      {/* Simulated Focus Buildings */}
-      {buildings.map((building) => {
-        const layout = buildingLayout[building.building_id] || { position: [0,0,0], scaleY: 1 };
-        return (
-          <Building
-            key={building.building_id}
-            data={building}
-            position={layout.position}
-            geoScaleY={layout.scaleY}
-            geoShape={layout.geoShape}
-            onClick={onBuildingClick}
-          />
-        );
-      })}
-
-      {/* External Power Plants visual representations */}
-      {Object.entries(POWER_SOURCE_POSITIONS).map(([sourceType, pos]) => {
-        if (!activePowerSources[sourceType]) return null;
-        
-        switch (sourceType) {
-          case 'wind': return <WindTurbine key={sourceType} position={pos as [number,number,number]} />;
-          case 'solar': return <SolarPlant key={sourceType} position={pos as [number,number,number]} />;
-          case 'gas': return <ThermalPlant key={sourceType} position={pos as [number,number,number]} />;
-          case 'hydro': return <HydroPlant key={sourceType} position={pos as [number,number,number]} />;
-          default: return null;
-        }
-      })}
-
-      {/* Live Glowing Energy Paths */}
-      <NeuralWires 
-        buildings={buildings} 
-        buildingPositions={buildingPositions}
-        activePowerSources={activePowerSources}
-      />
 
       {/* Ambient lighting */}
       <ambientLight intensity={0.3} />
@@ -312,25 +203,16 @@ function Scene({ buildings, geoBuildings, onBuildingClick, activeWeather = 'CLEA
 }
 
 // Main CityGrid component
-export function CityGrid({ buildings, geoBuildings, onBuildingClick, activeWeather, activeEvents, activePowerSources }: CityGridProps) {
+export function CityGrid({ buildings, onBuildingClick }: CityGridProps) {
   return (
     <div className="w-full h-full">
       <Canvas
-        camera={{ position: [25, 20, 25], fov: 45 }}
-        style={{ background: 'linear-gradient(to bottom, #0f172a, #1e293b)' }}
+        camera={{ position: [15, 12, 15], fov: 45 }}
+        style={{ background: 'transparent' }}
         dpr={[1, 1.5]}                          // cap pixel ratio for performance
         performance={{ min: 0.5 }}              // auto scale-down on slow GPU
       >
-        <Suspense fallback={null}>
-          <Scene 
-            buildings={buildings} 
-            geoBuildings={geoBuildings} 
-            onBuildingClick={onBuildingClick} 
-            activeWeather={activeWeather} 
-            activeEvents={activeEvents}
-            activePowerSources={activePowerSources} 
-          />
-        </Suspense>
+        <Scene buildings={buildings} onBuildingClick={onBuildingClick} />
         <OrbitControls
           enablePan={true}
           enableZoom={true}
