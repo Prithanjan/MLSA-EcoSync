@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://ryanblad3-ecosync-live.hf.space/api/$1" },
+    { "source": "/ws", "destination": "https://ryanblad3-ecosync-live.hf.space/ws" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
