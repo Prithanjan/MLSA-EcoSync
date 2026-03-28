@@ -44,7 +44,7 @@ pinned: false
 | Grid events (clouds, failures) | Live thought logs visible | 360° camera exploration | Transparent settlement |
 
 ---
-## <br>Live Website with demo: https://ecosync-nu.vercel.app/<br/>
+## <br>Live Website with demo: [https://ecosync-nu.vercel.app/](https://hack-olympus-eco-sync.vercel.app/)<br/>
 ## 🚀 Start Everything — One Command
 
 > **This is the only command you need.** It starts the backend AND frontend together automatically.
